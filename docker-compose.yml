@@ -1,0 +1,27 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      # Keep model in VRAM
+      - OLLAMA_KEEP_ALIVE=24h
+      # GPU tuning
+      - OLLAMA_NUM_GPU=1
+      - OLLAMA_GPU_LAYERS=35
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_FLASH_ATTENTION=1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  ollama_data:
