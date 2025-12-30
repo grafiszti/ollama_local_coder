@@ -10,7 +10,6 @@ services:
     environment:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_NUM_GPU=1
-      - OLLAMA_GPU_LAYERS=35
       - OLLAMA_NUM_PARALLEL=2
       - OLLAMA_FLASH_ATTENTION=1
     deploy:

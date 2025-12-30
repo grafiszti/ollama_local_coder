@@ -57,7 +57,6 @@ make install_zed
 ### GPU Settings
 The docker-compose.yml is pre-configured with:
 - `OLLAMA_NUM_GPU=1`: Use 1 GPU
-- `OLLAMA_GPU_LAYERS=35`: Number of layers to run on GPU
 - `OLLAMA_NUM_PARALLEL=2`: Parallel request handling
 - `OLLAMA_FLASH_ATTENTION=1`: Enable flash attention for better performance
 - `OLLAMA_KEEP_ALIVE=24h`: Keep models loaded in VRAM for 24 hours
@@ -104,7 +103,6 @@ ports:
 
 ### Out of Memory
 If you encounter OOM errors:
-- Reduce `OLLAMA_GPU_LAYERS` in `docker-compose.yml`
 - Use the smaller model (`qwen2.5-coder:3b`) instead
 - Reduce `OLLAMA_NUM_PARALLEL` to 1
 
