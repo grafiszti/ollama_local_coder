@@ -1,5 +1,9 @@
 up:
+	docker compose build
 	docker compose up -d
+
+down:
+	docker compose down
 
 validate:
 	curl http://localhost:11434/api/tags
