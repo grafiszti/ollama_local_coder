@@ -8,9 +8,7 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     environment:
-      # Keep model in VRAM
       - OLLAMA_KEEP_ALIVE=24h
-      # GPU tuning
       - OLLAMA_NUM_GPU=1
       - OLLAMA_GPU_LAYERS=35
       - OLLAMA_NUM_PARALLEL=2

@@ -18,7 +18,7 @@ setup_ollama:
 install_zed:
 	curl -f https://zed.dev/install.sh | sh
 
-check-gpu:
+check_gpu:
 	@echo "Checking GPU setup..."
 	@if command -v nvidia-smi > /dev/null 2>&1; then \
 		echo "✓ NVIDIA driver is installed"; \

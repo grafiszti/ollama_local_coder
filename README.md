@@ -1,12 +1,12 @@
 # Ollama Coder
-A Docker-based setup for running Ollama locally with GPU acceleration, optimized for use as a local LLM provider in Cursor IDE.
+A Docker-based setup for running Ollama locally with GPU acceleration, optimized for use as a local LLM provider in Zed editor.
 
 ## Features
-- 🚀 **GPU Acceleration**: Configured for NVIDIA GPUs with optimized settings
-- 🐳 **Docker Compose**: Easy setup and management
-- 💻 **Cursor Integration**: Ready to use as a local LLM in Cursor
-- ⚡ **Optimized Performance**: Pre-configured with flash attention and GPU tuning
-- 🔧 **Simple Management**: Makefile commands for common tasks
+- **GPU Acceleration**: Configured for NVIDIA GPUs with optimized settings
+- **Docker Compose**: Easy setup and management
+- **Cursor Integration**: Ready to use as a local LLM in Cursor
+- **Optimized Performance**: Pre-configured with flash attention and GPU tuning
+- **Simple Management**: Makefile commands for common tasks
 
 ## Prerequisites
 - Docker and Docker Compose installed
@@ -18,7 +18,7 @@ A Docker-based setup for running Ollama locally with GPU acceleration, optimized
 
 First, verify your GPU setup:
 ```bash
-make check-gpu
+make check_gpu
 ```
 If the NVIDIA runtime is not configured, follow the installation instructions shown, or visit the [NVIDIA Container Toolkit installation guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html).
 
@@ -73,7 +73,7 @@ You can adjust these settings in `docker-compose.yml` based on your GPU memory a
 | `make show_models`  | List available models                                |
 | `make setup_ollama` | Download Qwen Coder models (7b and 3b)               |
 | `make install_zed`  | Install Zed code editor                              |
-| `make check-gpu`    | Verify GPU setup and NVIDIA runtime configuration    |
+| `make check_gpu`    | Verify GPU setup and NVIDIA runtime configuration    |
 
 ## Troubleshooting
 ### GPU Not Detected
@@ -109,7 +109,7 @@ If you encounter OOM errors:
 - Reduce `OLLAMA_NUM_PARALLEL` to 1
 
 ## Model Recommendations
-- **qwen2.5-coder:7b**: Best for complex code generation
+- **qwen2.5-coder:7b**: Best for more complex code generation
 - **qwen2.5-coder:3b**: Faster, lighter option
 
 Choose based on your GPU memory and performance needs.
