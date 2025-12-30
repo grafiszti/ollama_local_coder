@@ -29,19 +29,30 @@ make up
 ```
 
 ### 3. Download Models
-Download the DeepSeek Coder models:
+Download the Qwen Coder models:
 ```bash
 make setup_ollama
 ```
 
 This will download:
-- `deepseek-coder:6.7b` - Larger, more capable model
-- `deepseek-coder:1.3b` - Smaller, faster model
+- `qwen2.5-coder:7b` - Larger, more capable model
+- `qwen2.5-coder:3b` - Smaller, faster model
 ### 4. Verify Installation
 Check that Ollama is running and models are available:
 ```bash
 make validate
 ```
+```bash
+make show_models
+```
+
+### (Optional) 5. Install Zed Editor
+Install Zed editor, that out of the box would have support for using 
+local Ollama models.
+```bash
+make install_zed
+```
+
 ## Configuration
 ### GPU Settings
 The docker-compose.yml is pre-configured with:
@@ -54,39 +65,18 @@ The docker-compose.yml is pre-configured with:
 You can adjust these settings in `docker-compose.yml` based on your GPU memory and requirements.
 
 ## Makefile Commands
-
-| Command | Description |
-|---------|-------------| 
-| `make up` | Start the Ollama container |
-| `make validate` | Check if Ollama is running and list available models |
-| `make setup_ollama` | Download DeepSeek Coder models (6.7b and 1.3b) |
-| `make check-gpu` | Verify GPU setup and NVIDIA runtime configuration |
-
-## Manual Docker Commands
-
-If you prefer using Docker Compose directly:
-
-```bash
-# Start services
-docker compose up -d
-
-# Stop services
-docker compose down
-
-# View logs
-docker compose logs -f ollama
-
-# Pull additional models
-docker exec -it ollama ollama pull <model-name>
-
-# List available models
-docker exec -it ollama ollama list
-```
+| Command             | Description                                          |
+|---------------------|------------------------------------------------------| 
+| `make up`           | Start the Ollama container                           |
+| `make down`         | Turn off the Ollama container                        |
+| `make validate`     | Check if Ollama is running and list available models |
+| `make show_models`  | List available models                                |
+| `make setup_ollama` | Download Qwen Coder models (7b and 3b)               |
+| `make install_zed`  | Install Zed code editor                              |
+| `make check-gpu`    | Verify GPU setup and NVIDIA runtime configuration    |
 
 ## Troubleshooting
-
 ### GPU Not Detected
-
 If GPU acceleration isn't working:
 
 1. Verify NVIDIA drivers are installed:
@@ -105,7 +95,6 @@ If GPU acceleration isn't working:
    ```
 
 ### Port Already in Use
-
 If port 11434 is already in use, modify the port mapping in `docker-compose.yml`:
 
 ```yaml
@@ -113,36 +102,26 @@ ports:
   - "11435:11434"  # Change 11434 to your preferred port
 ```
 
-Don't forget to update the Cursor configuration with the new port.
-
 ### Out of Memory
-
 If you encounter OOM errors:
-
 - Reduce `OLLAMA_GPU_LAYERS` in `docker-compose.yml`
-- Use the smaller model (`deepseek-coder:1.3b`) instead
+- Use the smaller model (`qwen2.5-coder:3b`) instead
 - Reduce `OLLAMA_NUM_PARALLEL` to 1
 
 ## Model Recommendations
-
-- **deepseek-coder:6.7b**: Best for complex code generation, requires ~8GB VRAM
-- **deepseek-coder:1.3b**: Faster, lighter option, requires ~2GB VRAM
+- **qwen2.5-coder:7b**: Best for complex code generation
+- **qwen2.5-coder:3b**: Faster, lighter option
 
 Choose based on your GPU memory and performance needs.
-
 ## Data Persistence
-
 Model data is stored in a Docker volume (`ollama_data`), so your downloaded models persist across container restarts.
 
 ## License
-
 This project is a setup configuration for Ollama. Please refer to:
 - [Ollama License](https://github.com/ollama/ollama/blob/main/LICENSE)
-- [DeepSeek Coder License](https://github.com/deepseek-ai/DeepSeek-Coder)
+- [Qwen Coder License](https://ollama.com/library/qwen2.5-coder:latest/blobs/832dd9e00a68)
 
 ## Acknowledgments
-
 - [Ollama](https://ollama.ai/) - The LLM runtime
 - [DeepSeek](https://www.deepseek.com/) - The DeepSeek Coder models
 - [Cursor](https://cursor.sh/) - The AI-powered code editor
-
