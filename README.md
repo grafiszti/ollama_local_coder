@@ -53,17 +53,6 @@ The docker-compose.yml is pre-configured with:
 
 You can adjust these settings in `docker-compose.yml` based on your GPU memory and requirements.
 
-### Cursor Integration
-
-To use this Ollama instance with Cursor:
-
-1. Open Cursor Settings
-2. Navigate to **Features** → **AI** → **Local Models**
-3. Add a new local model provider:
-   - **Base URL**: `http://localhost:11434`
-   - **Model**: `deepseek-coder:6.7b` or `deepseek-coder:1.3b`
-4. Select the model as your AI provider
-
 ## Makefile Commands
 
 | Command | Description |
@@ -143,11 +132,7 @@ Choose based on your GPU memory and performance needs.
 
 ## Data Persistence
 
-Model data is stored in a Docker volume (`ollama_data`), so your downloaded models persist across container restarts. To remove all data:
-
-```bash
-docker compose down -v
-```
+Model data is stored in a Docker volume (`ollama_data`), so your downloaded models persist across container restarts.
 
 ## License
 

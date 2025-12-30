@@ -8,9 +8,14 @@ down:
 validate:
 	curl http://localhost:11434/api/tags
 
+show_models:
+	docker exec -it ollama ollama list
+
 setup_ollama:
-	docker exec -it ollama ollama pull deepseek-coder:6.7b
-	docker exec -it ollama ollama pull deepseek-coder:1.3b
+	docker exec -it ollama ollama pull qwen2.5-coder:7b
+
+install_zed:
+	curl -f https://zed.dev/install.sh | sh
 
 check-gpu:
 	@echo "Checking GPU setup..."
