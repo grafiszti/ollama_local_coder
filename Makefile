@@ -13,6 +13,7 @@ show_models:
 
 setup_ollama:
 	docker exec -it ollama ollama pull qwen2.5-coder:7b
+	docker exec -it ollama ollama pull qwen2.5-coder:3b
 
 install_zed:
 	curl -f https://zed.dev/install.sh | sh
