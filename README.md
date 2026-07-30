@@ -1,21 +1,23 @@
-# LeChatonFat - llama.cpp Server for Opencode
+# LeChatonFat - LLM Development Environment
 
 ![img](img.png)
 
-A Docker-based setup for running llama.cpp server with GPU acceleration, optimized for use as a
-local LLM provider for the Opencode coding assistant.
+A Docker-based setup for running llama.cpp server with GPU acceleration, SearXNG web search, and MCP tool servers — optimized for use as a local LLM provider for the Opencode coding assistant.
 
 ## Features
 - **GPU Acceleration**: Configured for NVIDIA GPUs with optimized settings
-- **Docker Compose**: Easy setup and management with GPU auto-detection
+- **Docker Compose**: Easy setup and management with auto-detection (GPU/CPU)
 - **Speculative Decoding**: Fit-based speculative decoding with configurable batch sizes
 - **Configurable Inference**: Sampling parameters, penalties, reasoning mode, and more via `.env`
+- **Jinja Chat Template**: Bundled chat template for improved model formatting
 - **Auto-generated Config**: Generate `opencode.json` from `.env` via script
+- **SearXNG Integration**: Self-hosted privacy-focused web search service
+- **MCP Servers**: Browser automation and SearXNG MCP tools for Opencode
 - **Simple Management**: Makefile commands for common tasks
 
 ## Prerequisites
 - Docker and Docker Compose installed
-- NVIDIA GPU with drivers installed
+- NVIDIA GPU with drivers installed (optional, falls back to CPU)
 - NVIDIA Container Toolkit (for GPU support)
 
 ## Quick Start
@@ -24,7 +26,7 @@ local LLM provider for the Opencode coding assistant.
 # Copy environment template
 make copy_env
 
-# Build and start the container
+# Build and start the container (auto-detects GPU/CPU)
 make up
 
 # Validate the server is running
@@ -41,11 +43,12 @@ Use `make copy_env` to create `.env` file with all settings to configure:
 | `MODEL_NAME`       | `Qwen3.6-35B-A3B-UD-Q4_K_XL` | GGUF model filename (without `.gguf` extension) |
 | `MODEL_NAME_ALIAS` | `qwen3.6-35b`                | Alias for the model (used in opencode.json)     |
 | `CTX_SIZE`         | `98304`                      | Context window size in tokens                   |
-| `THREADS`          | `5`                          | CPU threads for inference                       |
 | `FLASH_ATTN`       | `on`                         | Enable flash attention                          |
+| `THREADS`          | `5`                          | CPU threads for inference                       |
 | `BATCH_SIZE`       | `256`                        | Prompt processing batch size                    |
 | `CACHE_TYPE_K`     | `q4_0`                       | KV cache type for K tensor                      |
 | `CACHE_TYPE_V`     | `q4_0`                       | KV cache type for V tensor                      |
+| `NO_MMAP`          | `false`                      | Disable memory-mapped model loading             |
 | `PARALLEL`         | `1`                          | Context parallelism                             |
 | `CACHE_RAM`        | `4096`                       | KV cache memory budget in MiB                   |
 
@@ -58,26 +61,21 @@ Use `make copy_env` to create `.env` file with all settings to configure:
 | `UBATCH_SIZE` | `256`   | Unbatched (speculative) batch size    |
 | `POLL_BATCH`  | `0`     | Poll batch size                       |
 
-### Context & GPU
-| Variable          | Default | Description                        |
-|-------------------|---------|------------------------------------|
-| `CTX_CHECKPOINTS` | -       | Context checkpoints path           |
-
 ### Sampling & Penalties
 | Variable           | Default | Description                   |
 |--------------------|---------|-------------------------------|
 | `TEMP`             | `0.6`   | Sampling temperature          |
-| `TOP_P`            | `0.80`  | Top-p nucleus sampling        |
+| `TOP_P`            | `0.95`  | Top-p nucleus sampling        |
 | `TOP_K`            | `20`    | Top-k sampling                |
 | `MIN_P`            | `0.0`   | Minimum probability threshold |
 | `PRESENCE_PENALTY` | `0.0`   | Presence penalty              |
 | `REPEAT_PENALTY`   | `1.0`   | Repetition penalty            |
 
 ### Features
-| Variable          | Default                             | Description                              |
-|-------------------|-------------------------------------|------------------------------------------|
-| `REASONING`       | `on`                                | Enable reasoning mode (`--reasoning on`) |
-| `CHAT_TEMPLATE`   | `/app/qwen_chat_template.jinja`     | Path to Jinja chat template file         |
+| Variable        | Default                         | Description                                                          |
+|-----------------|---------------------------------|----------------------------------------------------------------------|
+| `REASONING`     | `on`                            | Enable reasoning mode (`--reasoning on`)                             |
+| `CHAT_TEMPLATE` | `/app/qwen_chat_template.jinja` | Path to Jinja chat template file (empty = model's built-in template) |
 
 ### Server
 | Variable           | Default   | Description                    |
@@ -86,12 +84,18 @@ Use `make copy_env` to create `.env` file with all settings to configure:
 | `PORT_INTERNAL`    | `8080`    | Port inside Docker container   |
 | `PORT_EXTERNAL`    | `8001`    | Port exposed to host           |
 | `FORCE_CPU`        | `off`     | Force CPU runtime (on/off)     |
+| `SEARXNG_SECRET`   | *(empty)* | Secret key for SearXNG         |
 
 Adjust these in `.env` after copying from the template.
 
 ### Auto-generated opencode.json
 
-Run `make generate_opencode_config` to generate `opencode.json` from `templates/opencode.json.template` using values from `.env`. This updates the provider URL, model name, and model alias automatically.
+Run `make generate_opencode_config` to generate `opencode.json` from `templates/opencode.json.template` using values from `.env`. This updates the provider URL, model name, model alias, and MCP configurations automatically.
+
+The generated config includes MCP tool integration:
+- **fetch**: Web fetching via the `mcp/fetch` Docker image
+- **searxng-search**: Self-hosted web search via SearXNG
+- **browser**: Browser automation via a custom MCP server
 
 ## Makefile Commands
 
@@ -108,6 +112,18 @@ Run `make generate_opencode_config` to generate `opencode.json` from `templates/
 | `make copy_env`                 | Copy `templates/.env.template` to `.env`       |
 | `make download_qwen`            | Download the default Qwen model to `./models/` |
 | `make install_huggingface_cli`  | Install Hugging Face CLI                       |
+| `make build-mcp-browser`        | Build the MCP browser server image             |
+| `make build-searxng-mcp`        | Build the MCP SearXNG server image             |
+| `make build-mcp`                | Build all MCP server images                    |
+
+## Docker Compose Services
+
+The project runs two services via Docker Compose:
+
+- **llama**: The llama.cpp LLM server (main inference)
+- **searxng**: Self-hosted SearXNG web search engine (`http://localhost:8081`)
+
+Both services include healthchecks and persistent data volumes.
 
 ## Troubleshooting
 
@@ -129,6 +145,8 @@ If GPU acceleration isn't working:
    sudo systemctl restart docker
    ```
 
+4. The `make up` command auto-detects GPU availability; if neither `nvidia-smi` nor the NVIDIA Docker runtime is found, it falls back to CPU mode.
+
 ### Port Already in Use
 If the external port is already in use, modify `PORT_EXTERNAL` in `.env`:
 
@@ -144,8 +162,7 @@ If you encounter OOM errors:
 - Reduce `CACHE_RAM` or use a higher cache type (`q4_0` → `f16`)
 
 ## Data Persistence
-Model data is stored in `./models/` (bind-mounted), and KV cache is stored
-in the `llama_cache` Docker volume, so both persist across container restarts.
+Model data is stored in `./models/` (bind-mounted), KV cache is stored in the `llama_cache` Docker volume, and SearXNG data in the `searxng_data` volume — all persist across container restarts.
 
 ## License
 

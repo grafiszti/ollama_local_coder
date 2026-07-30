@@ -34,3 +34,4 @@ models/*.gguf
 .pytest_cache/
 .coverage
 htmlcov/
+opencode.json

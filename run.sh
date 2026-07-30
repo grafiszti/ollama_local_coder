@@ -4,7 +4,9 @@ set -e
 # Environment variables are loaded from .env
 # Load .env file
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    . .env
+    set +a
 fi
 
 # Validate model file exists
@@ -28,12 +30,14 @@ SERVER_CMD=(
     --cache-type-k "${CACHE_TYPE_K}"
     --cache-type-v "${CACHE_TYPE_V}"
     --parallel "${PARALLEL}"
-    --jinja
     --cache-ram "${CACHE_RAM}"
     --threads "${THREADS}"
 )
 
-# Speculative decoding / fit
+if [[ "${NO_MMAP}" == "true" ]]; then
+    SERVER_CMD+=(--no-mmap)
+fi
+
 if [[ "${FIT}" == "on" ]]; then
     SERVER_CMD+=(--fit "${FIT}")
     SERVER_CMD+=(--fit-target "${FIT_TARGET}")
@@ -81,6 +85,7 @@ fi
 
 # Jinja chat template
 if [[ -n "${CHAT_TEMPLATE}" && -f "${CHAT_TEMPLATE}" ]]; then
+    SERVER_CMD+=(--jinja)
     SERVER_CMD+=(--chat-template "$(cat "${CHAT_TEMPLATE}")")
 fi
 

@@ -1,0 +1,26 @@
+# Git and IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# Python
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Models (huge files - not needed for build)
+models/*.gguf
+
+# Not needed for main llama build
+mcps/
+img.png
+LICENSE
+*.md
+requirements.txt
+Makefile
+docker-compose*.yml
+templates/.env.template
+templates/opencode.json.template

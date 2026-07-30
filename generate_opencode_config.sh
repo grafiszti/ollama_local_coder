@@ -51,6 +51,7 @@ fi
 MODEL_NAME=$(env_var "MODEL_NAME")
 MODEL_NAME_ALIAS=$(env_var "MODEL_NAME_ALIAS")
 PORT=$(env_var "PORT_EXTERNAL")
+SEARXNG_SECRET=$(env_var "SEARXNG_SECRET")
 
 if [ -z "$MODEL_NAME" ]; then
     echo "Error: MODEL_NAME not set in .env" >&2
@@ -68,14 +69,33 @@ if [ -z "$PORT" ]; then
 fi
 
 # ---------------------------------------------------------------------------
+# Escape for sed (handle /, \, & in values)
+# ---------------------------------------------------------------------------
+sed_escape() {
+    local val="$1"
+    # escape \, /, and & for sed
+    val="${val//\\/\\\\}"
+    val="${val//\//\\/}"
+    val="${val//&/\\&}"
+    echo "$val"
+}
+
+MODEL_NAME_ESC=$(sed_escape "$MODEL_NAME")
+MODEL_NAME_ALIAS_ESC=$(sed_escape "$MODEL_NAME_ALIAS")
+PORT_ESC=$(sed_escape "$PORT")
+SEARXNG_SECRET_ESC=$(sed_escape "$SEARXNG_SECRET")
+
+# ---------------------------------------------------------------------------
 # Generate opencode.json
 # ---------------------------------------------------------------------------
-sed -e "s/{{MODEL_NAME}}/${MODEL_NAME}/g" \
-    -e "s/{{MODEL_NAME_ALIAS}}/${MODEL_NAME_ALIAS}/g" \
-    -e "s/{{PORT_EXTERNAL}}/${PORT}/g" \
+sed -e "s/{{MODEL_NAME}}/${MODEL_NAME_ESC}/g" \
+    -e "s/{{MODEL_NAME_ALIAS}}/${MODEL_NAME_ALIAS_ESC}/g" \
+    -e "s/{{PORT_EXTERNAL}}/${PORT_ESC}/g" \
+    -e "s/{{SEARXNG_SECRET}}/${SEARXNG_SECRET_ESC}/g" \
     templates/opencode.json.template > opencode.json
 
 echo "Successfully generated opencode.json with:"
 echo "  MODEL_NAME:       $MODEL_NAME"
 echo "  MODEL_NAME_ALIAS: $MODEL_NAME_ALIAS"
 echo "  PORT:             $PORT"
+echo "  SEARXNG_SECRET:   ${SEARXNG_SECRET:+set}${SEARXNG_SECRET:-empty}"

@@ -24,5 +24,20 @@
     "google",
     "groq",
     "openrouter"
-  ]
+  ],
+
+  "mcp": {
+    "fetch": {
+      "type": "local",
+      "command": ["docker", "run", "-i", "--rm", "mcp/fetch"]
+    },
+    "searxng-search": {
+      "type": "local",
+      "command": ["docker", "run", "-i", "--rm", "--network", "lechatonfat_default", "lechatonfat-searxng-mcp"]
+    },
+    "browser": {
+      "type": "local",
+      "command": ["docker", "run", "-i", "--rm", "--network", "lechatonfat_default", "lechatonfat-mcp-browser"]
+    }
+  }
 }

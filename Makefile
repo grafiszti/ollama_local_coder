@@ -1,5 +1,13 @@
 # ---------------------------- Docker management ----------------------------
 up:
+	@docker image inspect lechatonfat-mcp-browser > /dev/null 2>&1 || { \
+		echo "MCP browser image not found — building..."; \
+		docker build -t lechatonfat-mcp-browser mcps/browser; \
+	}
+	@docker image inspect lechatonfat-searxng-mcp > /dev/null 2>&1 || { \
+		echo "MCP SearXNG image not found — building..."; \
+		docker build --network=host -t lechatonfat-searxng-mcp mcps/searxng; \
+	}
 	@if [ -f .env ]; then \
 		FORCE_CPU=$$(grep '^FORCE_CPU=' .env | head -1 | cut -d'=' -f2); \
 	else \
@@ -59,10 +67,21 @@ check_gpu:
 smoke_test:
 	@if [ ! -f .env ]; then echo "Error: .env file not found" >&2; exit 1; fi
 	@MODEL=$$(grep '^MODEL_NAME=' .env | head -1 | cut -d'=' -f2 | sed 's/^["'\''"]//;s/["'\''"]$$//'); \
-	echo "Using model: $$MODEL"; \
-	curl -s http://localhost:8001/v1/chat/completions \
+	PORT=$$(grep '^PORT_EXTERNAL=' .env | head -1 | cut -d'=' -f2 | sed 's/^["'\''"]//;s/["'\''"]$$//'); \
+	PORT=$${PORT:-8001}; \
+	echo "Using model: $$MODEL on port $$PORT"; \
+	curl -s "http://localhost:$$PORT/v1/chat/completions" \
 	-H "Content-Type: application/json" \
 	-d '{"model":"'"$$MODEL"'", "messages":[{"role":"user","content":"Write hello world in Python"}]}'
+
+# ---------------------------- MCP server images ----------------------------
+build-mcp-browser:
+	docker build -t lechatonfat-mcp-browser mcps/browser
+
+build-searxng-mcp:
+	docker build --network=host -t lechatonfat-searxng-mcp mcps/searxng
+
+build-mcp: build-mcp-browser build-searxng-mcp
 
 # ---------------------------- Config generation ----------------------------
 generate_opencode_config:
@@ -82,11 +101,12 @@ install_huggingface_cli:
 download_qwen:
 	@if [ ! -f .env ]; then echo "Error: .env not found. Run 'make copy_env' first." >&2; exit 1; fi
 	@MODEL=$$(grep '^MODEL_NAME=' .env | head -1 | cut -d'=' -f2 | sed 's/^["'\''"]//;s/["'\''"]$$//'); \
-	echo "Downloading $$MODEL..."; \
+	REPO=$$(grep '^HF_REPO=' .env | head -1 | cut -d'=' -f2 | sed 's/^["'\''"]//;s/["'\''"]$$//'); \
+	echo "Downloading $$MODEL from $$REPO..."; \
 	mkdir -p models; \
 	if [ -f "models/$$MODEL.gguf" ]; then \
 		echo "Model already exists at models/$$MODEL.gguf"; \
 	else \
-		hf download hf://unsloth/Qwen3.6-35B-A3B-GGUF/$$MODEL.gguf -o models; \
+		hf download "hf://$$REPO/$$MODEL.gguf" -o models; \
 		echo "Download complete: models/$$MODEL.gguf"; \
 	fi
