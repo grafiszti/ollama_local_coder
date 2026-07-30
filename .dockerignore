@@ -19,7 +19,6 @@ mcps/
 img.png
 LICENSE
 *.md
-requirements.txt
 Makefile
 docker-compose*.yml
 templates/.env.template

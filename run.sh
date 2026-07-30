@@ -79,9 +79,14 @@ if [[ -n "${REPEAT_PENALTY}" ]]; then
 fi
 
 # Features
-if [[ "${REASONING}" == "on" ]]; then
-    SERVER_CMD+=(--reasoning on)
-fi
+case "${REASONING}" in
+    on|true|1)
+        SERVER_CMD+=(--reasoning on)
+        ;;
+    off|false|0)
+        SERVER_CMD+=(--reasoning off)
+        ;;
+esac
 
 # Jinja chat template
 if [[ -n "${CHAT_TEMPLATE}" && -f "${CHAT_TEMPLATE}" ]]; then

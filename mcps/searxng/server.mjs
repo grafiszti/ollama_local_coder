@@ -36,26 +36,44 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   ],
 }));
 
+const TIMEOUT_MS = 30_000;
+
+const searchSearXNG = async (query, categories, language) => {
+  const params = new URLSearchParams({ q: query, format: "json", categories, language });
+  const url = `${SEARXNG_URL}/search?${params}`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`SearXNG returned ${response.status}`);
+    }
+    const data = await response.json();
+
+    return (data.results || []).slice(0, 10).map((r, i) =>
+      `${i + 1}. [${r.title}](${r.url})\n   ${(r.content || "").slice(0, 300)}`
+    ).join("\n\n") || "No results found.";
+  } catch (err) {
+    if (err.name === "AbortError") {
+      return `SearXNG request timed out after ${TIMEOUT_MS / 1000}s`;
+    }
+    return `SearXNG search failed: ${err.message}`;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name !== "search") {
     throw new Error(`Unknown tool: ${request.params.name}`);
   }
 
   const { query, categories = "general", language = "all" } = request.params.arguments;
-  const params = new URLSearchParams({ q: query, format: "json", categories, language });
-  const url = `${SEARXNG_URL}/search?${params}`;
+  const text = await searchSearXNG(query, categories, language);
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`SearXNG returned ${response.status}`);
-  }
-  const data = await response.json();
-
-  const snippets = (data.results || []).slice(0, 10).map((r, i) =>
-    `${i + 1}. [${r.title}](${r.url})\n   ${(r.content || "").slice(0, 300)}`
-  ).join("\n\n");
-
-  return { content: [{ type: "text", text: snippets || "No results found." }] };
+  return { content: [{ type: "text", text }] };
 });
 
 const transport = new StdioServerTransport();

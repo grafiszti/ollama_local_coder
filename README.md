@@ -38,19 +38,20 @@ make validate
 ### Model
 Use `make copy_env` to create `.env` file with all settings to configure:
 
-| Variable           | Default                      | Description                                     |
-|--------------------|------------------------------|-------------------------------------------------|
-| `MODEL_NAME`       | `Qwen3.6-35B-A3B-UD-Q4_K_XL` | GGUF model filename (without `.gguf` extension) |
-| `MODEL_NAME_ALIAS` | `qwen3.6-35b`                | Alias for the model (used in opencode.json)     |
-| `CTX_SIZE`         | `98304`                      | Context window size in tokens                   |
-| `FLASH_ATTN`       | `on`                         | Enable flash attention                          |
-| `THREADS`          | `5`                          | CPU threads for inference                       |
-| `BATCH_SIZE`       | `256`                        | Prompt processing batch size                    |
-| `CACHE_TYPE_K`     | `q4_0`                       | KV cache type for K tensor                      |
-| `CACHE_TYPE_V`     | `q4_0`                       | KV cache type for V tensor                      |
-| `NO_MMAP`          | `false`                      | Disable memory-mapped model loading             |
-| `PARALLEL`         | `1`                          | Context parallelism                             |
-| `CACHE_RAM`        | `4096`                       | KV cache memory budget in MiB                   |
+| Variable           | Default                           | Description                                     |
+|--------------------|-----------------------------------|-------------------------------------------------|
+| `MODEL_NAME`       | `Qwen3.6-35B-A3B-UD-Q4_K_XL`      | GGUF model filename (without `.gguf` extension) |
+| `MODEL_NAME_ALIAS` | `qwen3.6-35b`                     | Alias for the model (used in opencode.json)     |
+| `HF_REPO`          | `unsloth/Qwen3.6-35B-A3B-UD-GGUF` | Hugging Face repository for model download      |
+| `CTX_SIZE`         | `98304`                           | Context window size in tokens                   |
+| `FLASH_ATTN`       | `on`                              | Enable flash attention                          |
+| `THREADS`          | `5`                               | CPU threads for inference                       |
+| `BATCH_SIZE`       | `256`                             | Prompt processing batch size                    |
+| `CACHE_TYPE_K`     | `q4_0`                            | KV cache type for K tensor                      |
+| `CACHE_TYPE_V`     | `q4_0`                            | KV cache type for V tensor                      |
+| `NO_MMAP`          | `false`                           | Disable memory-mapped model loading             |
+| `PARALLEL`         | `1`                               | Context parallelism                             |
+| `CACHE_RAM`        | `4096`                            | KV cache memory budget in MiB                   |
 
 ### Speculative Decoding (Fit)
 | Variable      | Default | Description                           |
